@@ -16,56 +16,59 @@ sys.path.append(os.path.realpath("."))
 from src.utils import *
 from src.config import *
 
+from src.app_config.app_config import AppConfig, ReviewChannelTypes
 
-def fetch_csv(review_details, app_name):
+def fetch_csv(review_channel, app_name):
     fetch_file_save_path = FETCH_FILE_SAVE_PATH.format(
         dir_name=DATA_DUMP_DIR,
         app_name=app_name,
-        channel_name=review_details[CHANNEL_NAME],
+        channel_name=review_channel.channel_name,
         extension="csv")
-    copyfile(review_details[FILE_PATH], fetch_file_save_path)
+    copyfile(review_channel[FILE_PATH], fetch_file_save_path)
 
 
 def fetch_reviews():
     app_configs = open_json(
         APP_CONFIG_FILE.format(file_name=APP_CONFIG_FILE_NAME))
 
-    app_json_schema = open_json("src/app-config-schema.json")
-
     for app in app_configs:
-        app_config = open_json(APP_CONFIG_FILE.format(file_name=app))
-        # If the app json schema is not valid, we don't execute any thing.
-        if not validate_app_config(app_config):
-            return
-        app_config = decrypt_config(app_config)
+        app_config = AppConfig(
+            open_json(
+                APP_CONFIG_FILE.format(file_name=app)
+            )
+        )
 
-        for review_details in app_config[REVIEW_CHANNELS]:
-            if review_details[IS_CHANNEL_ENABLED] and review_details[
-                    CHANNEL_TYPE] != BLANK:
-                print("[LOG]:: fetching...", app, review_details[CHANNEL_TYPE],
-                      review_details[CHANNEL_NAME])
-                if review_details[CHANNEL_TYPE] == CHANNEL_TYPE_TWITTER:
-                    fetch_from_twitter(review_details, app_config[APP])
-
-                elif review_details[CHANNEL_TYPE] == CHANNEL_TYPE_SALESFORCE:
-                    fetch_from_salesforce(review_details, app_config[APP])
-
-                elif review_details[CHANNEL_TYPE] == CHANNEL_TYPE_SPREADSHEET:
-                    fetch_review_from_spreadsheet(review_details,
-                                                  app_config[APP])
-
-                elif review_details[CHANNEL_TYPE] == CHANNEL_TYPE_CSV:
-                    fetch_csv(review_details, app_config[APP])
-
-                elif review_details[CHANNEL_TYPE] == CHANNEL_TYPE_PLAYSTORE:
-                    fetch_app_reviews(review_details, app_config[APP])
-
-                elif review_details[CHANNEL_TYPE] == CHANNEL_TYPE_APPSTORE:
-                    fetch_app_store_reviews(review_details, app_config[APP])
+        for review_channel in app_config.review_channels:
+            if review_channel.is_channel_enabled and review_channel.channel_type != ReviewChannelTypes.BLANK:
+                if review_channel.channel_type == ReviewChannelTypes.TWITTER:
+                    fetch_from_twitter(
+                        review_channel, app_config.app.name
+                    )
+                elif review_channel.channel_type == ReviewChannelTypes.SALESFORCE:
+                    fetch_from_salesforce(
+                        review_channel, app_config.app.name
+                    )
+                elif review_channel.channel_type == ReviewChannelTypes.SPREADSHEET:
+                    fetch_review_from_spreadsheet(
+                        review_channel, app_config.app.name
+                    )
+                elif review_channel.channel_type == ReviewChannelTypes.CSV:
+                    fetch_csv(
+                        review_channel, app_config.app.name
+                    )
+                elif review_channel.channel_type == ReviewChannelTypes.ANDROID:
+                    fetch_app_reviews(
+                        review_channel, app_config.app.name
+                    )
+                elif review_channel.channel_type == ReviewChannelTypes.IOS:
+                    fetch_app_store_reviews(
+                        review_channel, app_config.app.name
+                    )
                 else:
                     continue
+
         # Executing custom code after parsing.
-        if CUSTOM_CODE_PATH in app_config:
+        if app_config.custom_code_file != None:
             custom_code_module = importlib.import_module(
                 APP + "." + app_config[CUSTOM_CODE_PATH], package=None)
             reviews = custom_code_module.run_custom_code_post_fetch()

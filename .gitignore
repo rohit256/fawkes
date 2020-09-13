@@ -16,7 +16,7 @@ app/*.json
 app/*.py
 !app/app-config.json
 !app/bug-feature-keywords.json
-!app/app-keywords.json
+!app/category-keywords.json
 !app/sample-mint-config.json
 !app/sample-mint-keywords-with-weight.json
 !app/sample-mint-bug-feature-file-with-weights.json

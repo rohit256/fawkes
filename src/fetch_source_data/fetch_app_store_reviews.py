@@ -13,13 +13,13 @@ from src.utils import *
 from src.config import *
 
 
-def fetch_app_store_reviews(review_config, app):
+def fetch_app_store_reviews(review_channel, app_name):
     reviews = []
     for i in range(APP_STORE_PAGES_TO_FETCH):
         # Fetch the app-store reviews
         response = requests.get(
-            APP_STORE_RSS_URL.format(country=review_config[COUNTRY],
-                                     app_id=review_config[APP_ID],
+            APP_STORE_RSS_URL.format(country=review_channel.country,
+                                     app_id=review_channel.app_id,
                                      page_number=i + 1))
         # We get an XML reponse, we convert it to json
         review = json.loads(json.dumps(xmltodict.parse(response.text)))
@@ -52,8 +52,8 @@ def fetch_app_store_reviews(review_config, app):
 
     fetch_file_save_path = FETCH_FILE_SAVE_PATH.format(
         dir_name=dir,
-        app_name=app,
-        channel_name=review_config[CHANNEL_NAME],
+        app_name=app_name,
+        channel_name=review_channel.channel_name,
         extension="json")
 
     dump_json(new_reviews, fetch_file_save_path)

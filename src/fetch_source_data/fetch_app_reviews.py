@@ -12,13 +12,13 @@ from src.utils import *
 from src.config import *
 
 
-def fetch_app_reviews(review_config, app):
+def fetch_app_reviews(review_channel, app_name):
     # Since searchman allows us to have limited credits, we iterate over a set of API keys that we will use every month.
     # The API key gets refreshed every month
     searchman_api_key_index = 0
     params = {
-        "appId": review_config[APP_ID],
-        "apiKey": review_config[SEARCHMAN_API_KEY][searchman_api_key_index],
+        "appId": review_channel[APP_ID],
+        "apiKey": review_channel[SEARCHMAN_API_KEY][searchman_api_key_index],
         "count": 100,
         "start": 0
     }
@@ -31,7 +31,7 @@ def fetch_app_reviews(review_config, app):
         try:
             params["start"] = current_page * 100
             response = requests.get(SEARCHMAN_REVIEWS_ENDPOINT.format(
-                platform=review_config[CHANNEL_TYPE]),
+                platform=review_channel[CHANNEL_TYPE]),
                                     params=params)
             review_page = json.loads(response.text)
             if "data" in review_page:
@@ -46,8 +46,8 @@ def fetch_app_reviews(review_config, app):
                 raise Exception("Bad Response from fetch_app_reviews")
         except BaseException:
             searchman_api_key_index += 1
-            if searchman_api_key_index < len(review_config[SEARCHMAN_API_KEY]):
-                params["apiKey"] = review_config[SEARCHMAN_API_KEY][
+            if searchman_api_key_index < len(review_channel[SEARCHMAN_API_KEY]):
+                params["apiKey"] = review_channel[SEARCHMAN_API_KEY][
                     searchman_api_key_index]
             else:
                 print("[LOG][ERROR] Exhausted all API keys")
@@ -57,8 +57,8 @@ def fetch_app_reviews(review_config, app):
 
     fetch_file_save_path = FETCH_FILE_SAVE_PATH.format(
         dir_name=dir,
-        app_name=app,
-        channel_name=review_config[CHANNEL_NAME],
+        app_name=app_name,
+        channel_name=review_channel[CHANNEL_NAME],
         extension="json")
 
     if not os.path.exists(dir):
