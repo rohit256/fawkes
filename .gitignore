@@ -20,8 +20,8 @@ app/*.py
 !app/sample-mint-config.json
 !app/sample-mint-keywords-with-weight.json
 !app/sample-mint-bug-feature-file-with-weights.json
-data/*.json
-data/*.csv
+data/**/*.json
+data/**/*.csv
 !data/sample-mint-appstore-raw-feedback.json
 processed-data/
 .coverage
