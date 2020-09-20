@@ -8,9 +8,8 @@ from datetime import datetime
 # This is so that below import works
 sys.path.append(os.path.realpath("."))
 
-from src.utils import *
-from src.config import *
-
+import src.utils as utils
+import src.constants as constants
 
 def twitter_authenthication(consumer_key, consumer_secret, access_token_key,
                             access_token_secret):
@@ -24,7 +23,7 @@ def search_handle_mentions(api,
                            handle,
                            date,
                            latest_id=None,
-                           language=TWITTER_QUERY_LANGUAGE,
+                           language=constants.TWITTER_QUERY_LANGUAGE,
                            count=100):
     # What handle to search
     query = "q=%40{handle}".format(handle=handle)
@@ -46,37 +45,27 @@ def search_handle_mentions(api,
     return api.GetSearch(raw_query=query, return_json=True)
 
 
-def fetch(twitter_config, app):
-    api = twitter_authenthication(twitter_config[CONSUMER_KEY],
-                                  twitter_config[CONSUMER_SECRET],
-                                  twitter_config[ACCESS_TOKEN_KEY],
-                                  twitter_config[ACCESS_TOKEN_SECRET])
+def fetch(review_channel):
+    api = twitter_authenthication(twitter_config.consumer_key,
+                                  twitter_config.consumer_secret,
+                                  twitter_config.access_token_key,
+                                  twitter_config.access_token_secret)
 
     all_tweets = []
-    for twitter_handle in twitter_config[TWITTER_HANDLE_LIST]:
-        # Fetch the first page of the timeline TODO: for handlelist
+    for twitter_handle in twitter_config.twitter_handle_list:
+        # Fetch the first page of the timeline
         query_results = search_handle_mentions(
             api, twitter_handle,
             datetime.today().strftime("%Y-%m-%d"))
 
         # We iterate the twitter timeline pages to extract all the tweets for
         # the given query.
-        while (len(query_results[KEY_CONTAINING_TWEETS]) > 0):
-            all_tweets.extend(query_results[KEY_CONTAINING_TWEETS])
-            latest_id = query_results[KEY_CONTAINING_TWEETS][-1][
-                KEY_WITH_STATUS_ID] - 1
+        while (len(query_results[constants.KEY_CONTAINING_TWEETS]) > 0):
+            all_tweets.extend(query_results[constants.KEY_CONTAINING_TWEETS])
+            latest_id = query_results[constants.KEY_CONTAINING_TWEETS][-1][
+                constants.KEY_WITH_STATUS_ID] - 1
             query_results = search_handle_mentions(
                 api, twitter_handle,
                 datetime.today().strftime("%Y-%m-%d"), latest_id)
 
-    corrected_tweets = []
-    for tweet in all_tweets:
-        # We have to format the time so that later our parse functions can pick it up
-        # We show mercy to Rabbits
-        time = tweet[twitter_config[TIMESTAMP_KEY]].split(" ")
-        del time[-2]
-        tweet[twitter_config[TIMESTAMP_KEY]] = convert_date_format(
-            " ".join(time))
-        corrected_tweets.append(tweet)
-
-    return corrected_tweets
+    return all_tweets

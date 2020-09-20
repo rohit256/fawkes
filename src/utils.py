@@ -13,7 +13,6 @@ import gensim
 import spacy
 import jsonschema
 
-from datetime import datetime
 from pprint import pprint
 from datetime import datetime, timedelta
 

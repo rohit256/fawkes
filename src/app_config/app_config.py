@@ -111,6 +111,13 @@ class SpreadSheetReviewChannel(ReviewChannel):
         self.sheet_id = config["sheet_id"]
         self.client_secrets_file = config["client_secrets_file"]
 
+class SalesforceReviewChannel(ReviewChannel):
+    def __init__(self, config):
+        super().__init__(config)
+        self.base_url = config["base_url"]
+        self.oauth_params = config["oauth_params"]
+        self.query_list = config["query_list"]
+
 class FawkesInternalDataConfig:
     def __init__(self, config):
         self.base_folder = config["base_folder"]

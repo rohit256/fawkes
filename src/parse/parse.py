@@ -126,6 +126,11 @@ def parse_reviews():
                     raise (
                         "Format not supported exception. Check your file-type key in your config."
                     )
+                # Now have have parsed the raw json/csv which come directly from the source and have converted to a review object.
+                # Its time to standarise the object
+                for review in channel_reviews:
+                    review.standardise_date_time(review_channel.timezone, review_channel.timestamp_format)
+                    review.clean_review_message()
                 parsed_reviews += channel_reviews
 
         # Executing custom code after parsing.

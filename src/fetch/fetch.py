@@ -15,14 +15,14 @@ import comma_separated_values
 sys.path.append(os.path.realpath("."))
 
 import src.utils as utils
-from src.constants import *
+import src.constants as constants
 
 from src.app_config.app_config import AppConfig, ReviewChannelTypes
 
 def fetch_reviews():
     # Read the app-config.json file.
     app_configs = utils.open_json(
-        APP_CONFIG_FILE.format(file_name=APP_CONFIG_FILE_NAME)
+        constants.APP_CONFIG_FILE.format(file_name=constants.APP_CONFIG_FILE_NAME)
     )
     # For every app registered in app-config.json we
     for app_config_file in app_configs:
@@ -38,27 +38,27 @@ def fetch_reviews():
                 # Depending on the channel type, we have different "fetchers" to get the data.
                 if review_channel.channel_type == ReviewChannelTypes.TWITTER:
                     reviews = tweets.fetch(
-                        review_channel, app_config.app.name
+                        review_channel
                     )
                 elif review_channel.channel_type == ReviewChannelTypes.SALESFORCE:
                     reviews = salesforce.fetch(
-                        review_channel, app_config.app.name
+                        review_channel
                     )
                 elif review_channel.channel_type == ReviewChannelTypes.SPREADSHEET:
                     reviews = spreadsheet.fetch(
-                        review_channel, app_config.app.name
+                        review_channel
                     )
                 elif review_channel.channel_type == ReviewChannelTypes.CSV:
                     reviews = comma_separated_values.fetch(
-                        review_channel, app_config.app.name
+                        review_channel
                     )
                 elif review_channel.channel_type == ReviewChannelTypes.ANDROID:
                     reviews = playstore.fetch(
-                        review_channel, app_config.app.name
+                        review_channel
                     )
                 elif review_channel.channel_type == ReviewChannelTypes.IOS:
                     reviews = appstore.fetch(
-                        review_channel, app_config.app.name
+                        review_channel
                     )
                 else:
                     continue
@@ -66,7 +66,7 @@ def fetch_reviews():
                 # After fetching the review for that particular channel, we dump it into a file.
                 # The file has a particular format.
                 # {base_folder}/{dir_name}/{app_name}/{channel_name}-raw-feedback.{extension}
-                raw_user_reviews_file_path = RAW_USER_REVIEWS_FILE_PATH.format(
+                raw_user_reviews_file_path = constants.RAW_USER_REVIEWS_FILE_PATH.format(
                     base_folder=app_config.fawkes_internal_config.data.base_folder,
                     dir_name=app_config.fawkes_internal_config.data.raw_data_folder,
                     app_name=app_config.app.name,
@@ -77,11 +77,11 @@ def fetch_reviews():
                 dir_name = os.path.dirname(raw_user_reviews_file_path)
                 pathlib.Path(dir_name).mkdir(parents=True, exist_ok=True)
 
-                if review_channel.file_type == JSON:
+                if review_channel.file_type == constants.JSON:
                     utils.dump_json(reviews, raw_user_reviews_file_path)
                 else:
-                    # TODO: Write the CSV file.
-                    pass
+                    with open(raw_user_reviews_file_path) as file:
+                        file.write(reviews)
 
         # There are lot of use-cases where we need to execute custom code after the data is fetched.
         # This might include data-transformation, cleanup etc.

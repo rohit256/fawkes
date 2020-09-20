@@ -6,8 +6,8 @@ from gsheets import Sheets
 # This is so that below import works
 sys.path.append(os.path.realpath("."))
 
-from src.config import *
-
+import src.utils as utils
+import src.constants as constants
 
 def fetch_sheet_data(token_file, spreadsheet_id):
     """
@@ -21,10 +21,7 @@ def fetch_sheet_data(token_file, spreadsheet_id):
     return sheets
 
 
-def fetch(channel_config, app):
-    sheets = fetch_sheet_data(channel_config[CLIENT_SECRET_FILE],
-                              channel_config[SPREADSHEET_ID])
-
-    sheets[channel_config[SHEET_ID]].to_csv(fetch_file_save_path,
-                                            encoding="utf-8",
-                                            dialect="excel")
+def fetch(review_channel):
+    sheets = fetch_sheet_data(review_channel[CLIENT_SECRET_FILE], review_channel[SPREADSHEET_ID])
+    # Funny enough, there is no direct way to put into a csv string.
+    return sheets[channel_config[SHEET_ID]].to_frame().to_csv()
