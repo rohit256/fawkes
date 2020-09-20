@@ -213,20 +213,17 @@ def remove_duplicates(list_with_duplicates):
     return clean_list
 
 
-#
-
-
 def filter_review_on_channel(channel_list, reviews):
     """ Filters the review for those channels which are not in channel_list """
     return [
-        review for review in reviews if review[CHANNEL_TYPE] in channel_list
+        review for review in reviews if review.channel_type in channel_list
     ]
 
 
 def filter_review_on_time(reviews, from_date):
     return [
-        review for review in reviews if review[TIMESTAMP] != "" and
-        datetime.strptime(review[TIMESTAMP], '%Y/%m/%d %H:%M:%S') > from_date
+        review for review in reviews if review.timestamp != "" and
+        datetime.strptime(review.timestamp, '%Y/%m/%d %H:%M:%S') > from_date
     ]
 
 
@@ -262,7 +259,7 @@ def lemmatisation(text, allowed_postags=["NOUN", "ADJ", "VERB", "ADV"]):
 def get_positive_review(reviews):
     return [
         review for review in reviews
-        if review[DERIVED_INSIGHTS][SENTIMENT]["compound"] > 0.0
+        if review.derived_insight.sentiment.compound > 0.0
     ]
 
 
@@ -270,7 +267,7 @@ def get_negative_review(reviews):
     """ Why does positive come above negative?? Think positive man!!! Sapien!! :p """
     return [
         review for review in reviews
-        if review[DERIVED_INSIGHTS][SENTIMENT]["compound"] < 0.0
+        if review.derived_insight.sentiment.compound < 0.0
     ]
 
 
@@ -278,7 +275,7 @@ def get_top_tweets_link(review_list):
     return [
         review[PROPERTIES][KEY_WITH_TWEET_URL]
         for review in review_list
-        if review[CHANNEL_TYPE] == CHANNEL_TYPE_TWITTER
+        if review.channel_type == CHANNEL_TYPE_TWITTER
     ]
 
 
@@ -309,7 +306,7 @@ def most_common(L):
 
 
 def get_sentiment_compound(review):
-    return review[DERIVED_INSIGHTS][SENTIMENT][COMPOUND]
+    return review.derived_insight.sentiment.compound
 
 
 def filter_reviews(reviews, app_config, enable_key=IS_CHANNEL_ENABLED):

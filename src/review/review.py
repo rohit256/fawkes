@@ -32,11 +32,13 @@ class DerivedInsight:
         }
 
 class Review:
-    def __init__(self, *review, message = '', timestamp = '', app_name = '', channel_name = '', channel_type = ''):
+    def __init__(self, *review, message = '', timestamp = '', app_name = '', channel_name = '', channel_type = '', rating = None):
         # The message in the review
         self.message = message
         # The timestamp when the review was submitted
         self.timestamp = timestamp
+        # Rating.
+        self.rating = rating
         # The app from which the review came
         self.app_name = app_name
         # The source/channel from which the review came
@@ -73,6 +75,7 @@ class Review:
         return {
             "message": self.message,
             "timestamp": self.timestamp,
+            "rating": self.rating,
             "app_name": self.app_name,
             "channel_name": self.channel_name,
             "channel_type": self.channel_type,

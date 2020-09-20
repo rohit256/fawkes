@@ -50,6 +50,6 @@ if __name__ == "__main__":
         if validate_app_config(app_config):
             app_config = decrypt_config(app_config)
             dump_json(parse_keywords_file(app_config[TOPIC_KEYWORDS_FILE]),
-                      TOPICS_WEIGHT_FILE.format(app=app_config[APP]))
+                      TOPICS_WEIGHT_FILE.format(app=app_config.app.name))
             dump_json(parse_keywords_file(app_config[BUG_FEATURE_FILE], False),
-                      BUG_FEATURE_FILE_WITH_WEIGHTS.format(app=app_config[APP]))
+                      BUG_FEATURE_FILE_WITH_WEIGHTS.format(app=app_config.app.name))

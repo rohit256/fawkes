@@ -52,8 +52,8 @@ def get_articles_and_labels(reviews, labels=[]):
 
     # We go through the list of reviews
     for review in reviews:
-        article = review[MESSAGE]
-        label = review[DERIVED_INSIGHTS][CATEGORY]
+        article = review.message
+        label = review.derived_insight.category
 
         # Now we remove stopwords
         for word in STOPWORDS:
@@ -185,7 +185,7 @@ def train_lstm_model():
 
         # Loading the REVIEW's
         reviews = utils.open_json(
-            PROCESSED_INTEGRATED_REVIEW_FILE.format(app_name=app_config[APP])
+            PROCESSED_INTEGRATED_REVIEW_FILE.format(app_name=app_config.app.name)
         )
 
         # reviews = utils.filter_reviews(reviews, app_config)
@@ -199,18 +199,18 @@ def train_lstm_model():
         if not os.path.exists(TRAINED_MODELS):
             os.makedirs(TRAINED_MODELS)
 
-        trained_model.save(LSTM_TRAINED_MODEL_FILE.format(app_name=app_config[APP]))
+        trained_model.save(LSTM_TRAINED_MODEL_FILE.format(app_name=app_config.app.name))
 
         # Saving the tokenizers
         dump_json(
             article_tokenizer.to_json(),
-            LSTM_ARTICLE_TOKENIZER_FILE.format(app_name=app_config[APP]),
+            LSTM_ARTICLE_TOKENIZER_FILE.format(app_name=app_config.app.name),
         )
 
         # Saving the tokenizers
         dump_json(
             label_tokenizer.to_json(),
-            LSTM_LABEL_TOKENIZER_FILE.format(app_name=app_config[APP]),
+            LSTM_LABEL_TOKENIZER_FILE.format(app_name=app_config.app.name),
         )
 
 

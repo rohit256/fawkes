@@ -94,9 +94,9 @@ def push_data_to_elasticsearch():
         print("[LOG]:: dumpdata ", app_config["app"])
         # Load the file
         reviews = open_json(
-            PROCESSED_INTEGRATED_REVIEW_FILE.format(app_name=app_config[APP]))
+            PROCESSED_INTEGRATED_REVIEW_FILE.format(app_name=app_config.app.name))
 
-        reviews = [review for review in reviews if review["timestamp"] != ""]
+        reviews = [review for review in reviews if review.timestamp != ""]
 
         random.shuffle(reviews)
 

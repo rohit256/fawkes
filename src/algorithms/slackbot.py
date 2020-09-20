@@ -39,11 +39,11 @@ def get_sentiment_color(sentiment):
 def get_jira_details(review, app_config, issue_type):
     # We give a generic summary with just the category of the message.
     summary = "REVIEW Feeback on : {category}".format(
-        category=review[DERIVED_INSIGHTS][CATEGORY])
+        category=review.derived_insight.category)
 
     # Description will have the REVIEW followed by the unified json dump.
-    description = review[MESSAGE]
-    description = review[MESSAGE] + \
+    description = review.message
+    description = review.message + \
         "\n\n Details : \n {code:json}" + json.dumps(review, indent=4) + "{code}"
 
     # We take the issue type and the project id from the user
@@ -85,14 +85,14 @@ def get_people_to_tag(app_config, review):
     if SLACK_TAGS in app_config:
         if CATEGORY in app_config[SLACK_TAGS]:
             # Adding all the people who have subscribed to
-            if review[DERIVED_INSIGHTS][CATEGORY] in app_config[SLACK_TAGS][
+            if review.derived_insight.category in app_config[SLACK_TAGS][
                     CATEGORY]:
                 list_of_slack_ids += app_config[SLACK_TAGS][CATEGORY][
-                    review[DERIVED_INSIGHTS][CATEGORY]]
+                    review.derived_insight.category]
         # Now adding people who have subscribed to keywords
         if SLACK_KEYWORDS in app_config[SLACK_TAGS]:
             for keyword in app_config[SLACK_TAGS][SLACK_KEYWORDS]:
-                if keyword in review[MESSAGE]:
+                if keyword in review.message:
                     list_of_slack_ids += app_config[SLACK_TAGS][SLACK_KEYWORDS][
                         keyword]
     return list_of_slack_ids
@@ -114,7 +114,7 @@ def send_to_slack(slack_url,
     headers = {'content-type': 'application/json'}
 
     # We don't want to send empty message to slack.
-    if review[MESSAGE] == "" or review[MESSAGE] == "NA":
+    if review.message == "" or review.message == "NA":
         return
 
     # If its a text, we just send it.
@@ -128,33 +128,33 @@ def send_to_slack(slack_url,
         # We create the attachment payload
         attachment = {
             "fallback":
-                review[MESSAGE],
+                review.message,
             "color":
                 get_sentiment_color(
-                    review[DERIVED_INSIGHTS][SENTIMENT][COMPOUND]),
+                    review.derived_insight.sentiment.compound),
             "pretext":
                 "Sentiment : " +
-                str(review[DERIVED_INSIGHTS][SENTIMENT][COMPOUND]),
+                str(review.derived_insight.sentiment.compound),
             "author_name":
-                review[DERIVED_INSIGHTS][CATEGORY],
+                review.derived_insight.category,
             "author_link":
                 "search-fawkes-e2e-obimwlpxmz7dnwz4owke6jmvy4.us-west-2.es.amazonaws.com/_plugin/kibana/app/kibana",
             "author_icon":
                 "https://i.imgur.com/pydBDO7.png",
             "text":
-                review[MESSAGE] + SPACE + user_mention_string,
+                review.message + SPACE + user_mention_string,
             "ts":
                 time.mktime(
-                    datetime.strptime(review[TIMESTAMP],
+                    datetime.strptime(review.timestamp,
                                       '%Y/%m/%d %H:%M:%S').timetuple()),
             "footer":
-                review[APP] + " : " + review[CHANNEL_TYPE],
+                review.app_name + " : " + review.channel_type,
             "actions":
                 get_actions(review, app_config)
         }
 
         # Twitter
-        if review[CHANNEL_TYPE] == CHANNEL_NAME_TWITTER:
+        if review.channel_type == CHANNEL_NAME_TWITTER:
             # Extract the tweet URL and send it
             payload["text"] = TWITTER_URL.format(
                 status_id=review[PROPERTIES]["id_str"])
@@ -195,15 +195,14 @@ if __name__ == "__main__":
             # Loading the REVIEW's
             reviews = utils.open_json(
                 PROCESSED_INTEGRATED_REVIEW_FILE.format(
-                    app_name=app_config[APP]))
+                    app_name=app_config.app.name))
 
             reviews = utils.filter_reviews(reviews, app_config)
 
             reviews = utils.filter_review_for_slack(reviews, app_config)
 
             reviews = sorted(reviews,
-                             key=lambda review: review[DERIVED_INSIGHTS][
-                                 SENTIMENT][COMPOUND],
+                             key=lambda review: review.derived_insight.sentiment.compound,
                              reverse=True)
 
             for review in reviews:

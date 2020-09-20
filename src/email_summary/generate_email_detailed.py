@@ -54,7 +54,7 @@ if __name__ == "__main__":
             # Loading the REVIEW's
             reviews = utils.open_json(
                 PROCESSED_INTEGRATED_REVIEW_FILE.format(
-                    app_name=app_config[APP]))
+                    app_name=app_config.app.name))
 
             reviews = utils.filter_reviews(reviews, app_config, WEEKLY_SUMMARY)
 
@@ -141,7 +141,7 @@ if __name__ == "__main__":
             dir = DATA_DUMP_DIR
 
             fetch_file_save_path = PROCESSED_EMAIL_FILE.format(
-                dir_name=dir, app_name=app_config[APP])
+                dir_name=dir, app_name=app_config.app.name)
 
             with open(fetch_file_save_path, "w") as email_file_handle:
                 email_file_handle.write(formatted_html)

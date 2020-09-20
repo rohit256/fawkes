@@ -21,18 +21,18 @@ from src.config import *
 
 
 def add_review_sentiment_score(review):
-    return format_output_json(review, None, get_sentiment(review[MESSAGE]))
+    return format_output_json(review, None, get_sentiment(review.message))
 
 
 def text_match_categortization(review, app_config, topics):
-    category_scores, category = text_match(review[MESSAGE], topics)
+    category_scores, category = text_match(review.message, topics)
     return format_output_json(review, category, None,
                               {"category-scores": category_scores})
 
 
 def lstm_classification(reviews, app_config, model, article_tokenizer,
                         label_tokenizer, original_label_to_clean_label):
-    articles = [review[MESSAGE] for review in reviews]
+    articles = [review.message for review in reviews]
     categories = lstm_classifier.predict_labels(articles, app_config, model,
                                                 article_tokenizer,
                                                 label_tokenizer)
@@ -46,7 +46,7 @@ def lstm_classification(reviews, app_config, model, article_tokenizer,
 
 
 def bug_feature_classification(review, app_config, topics):
-    _, category = text_match(review[MESSAGE], topics)
+    _, category = text_match(review.message, topics)
     return format_output_json(review, None, None, {BUG_FEATURE: category})
 
 
@@ -63,7 +63,7 @@ def run_algo():
         app_config = decrypt_config(app_config)
         # Loading the REVIEW's
         reviews = utils.open_json(
-            PARSED_INTEGRATED_REVIEW_FILE.format(app_name=app_config[APP]))
+            PARSED_INTEGRATED_REVIEW_FILE.format(app_name=app_config.app.name))
 
         reviews = utils.filter_reviews(reviews, app_config)
 
@@ -90,7 +90,7 @@ def run_algo():
 
             # We read from the topic file first
             topics = {}
-            topics = open_json(TOPICS_WEIGHT_FILE.format(app=app_config[APP]))
+            topics = open_json(TOPICS_WEIGHT_FILE.format(app=app_config.app.name))
 
             # Adding text-match categorization
             # Multiprocessing for speeeeeeding up. Need For Speed!!!
@@ -108,17 +108,17 @@ def run_algo():
             print("[LOG] Loading LSTM Model :: ")
 
             model = tf.keras.models.load_model(
-                LSTM_TRAINED_MODEL_FILE.format(app_name=app_config[APP]))
+                LSTM_TRAINED_MODEL_FILE.format(app_name=app_config.app.name))
 
             print("[LOG] Start Load of Token Files :: ")
 
             tokenizer_json = open_json(
-                LSTM_ARTICLE_TOKENIZER_FILE.format(app_name=app_config[APP]))
+                LSTM_ARTICLE_TOKENIZER_FILE.format(app_name=app_config.app.name))
             article_tokenizer = tf.keras.preprocessing.text.tokenizer_from_json(
                 tokenizer_json)
 
             tokenizer_json = open_json(
-                LSTM_LABEL_TOKENIZER_FILE.format(app_name=app_config[APP]))
+                LSTM_LABEL_TOKENIZER_FILE.format(app_name=app_config.app.name))
             label_tokenizer = tf.keras.preprocessing.text.tokenizer_from_json(
                 tokenizer_json)
 
@@ -128,7 +128,7 @@ def run_algo():
 
             original_label_to_clean_label = {}
             for review in reviews:
-                label = review[DERIVED_INSIGHTS][CATEGORY]
+                label = review.derived_insight.category
                 cleaned_label = re.sub(r'\W+', '', label)
                 cleaned_label = cleaned_label.lower()
                 # Convert this to lower case as the tokenized label is lower
@@ -143,7 +143,7 @@ def run_algo():
             lstm_text_match_parity = 0
 
             for review in reviews:
-                if review[DERIVED_INSIGHTS][CATEGORY] != review[
+                if review.derived_insight.category != review[
                         DERIVED_INSIGHTS][EXTRA_PROPERTIES][LSTM_CATEGORY]:
                     lstm_text_match_parity += 1
 
@@ -162,7 +162,7 @@ def run_algo():
 
             topics = {}
             topics = open_json(
-                BUG_FEATURE_FILE_WITH_WEIGHTS.format(app=app_config[APP]))
+                BUG_FEATURE_FILE_WITH_WEIGHTS.format(app=app_config.app.name))
             # Adding bug/feature
             # Multiprocessing for speeeeeeding up. Need For Speed!!!
             with Pool(num_processes) as process:
@@ -175,7 +175,7 @@ def run_algo():
 
         dump_json(
             reviews,
-            PROCESSED_INTEGRATED_REVIEW_FILE.format(app_name=app_config[APP]))
+            PROCESSED_INTEGRATED_REVIEW_FILE.format(app_name=app_config.app.name))
 
 
 if __name__ == "__main__":

@@ -39,6 +39,7 @@ def parse_csv(raw_user_reviews_file_path, review_channel, app_config):
             review = {}
             timestamp = ""
             message = ""
+            rating = None
 
             # There are some csvs for which the last column is empty.
             # Hence we need to take the min below
@@ -49,6 +50,8 @@ def parse_csv(raw_user_reviews_file_path, review_channel, app_config):
                 elif json_keys_list[i] == review_channel.message_key:
                     # Storing the message
                     message = row[i]
+                elif json_keys_list[i] == review_channel.rating_key:
+                    rating = row[i]
                 # Storing the raw review as received from the source.
                 review[json_keys_list[i]] = row[i]
 
@@ -58,6 +61,7 @@ def parse_csv(raw_user_reviews_file_path, review_channel, app_config):
                     review,
                     message=message,
                     timestamp=timestamp,
+                    rating=rating,
                     app_name=app_config.app.name,
                     channel_name=review_channel.channel_name,
                     channel_type=review_channel.channel_type,
@@ -77,6 +81,7 @@ def parse_json(raw_user_reviews_file_path, review_channel, app_config):
         # TODO: Conver this to a standard format like jsonpath
         message = utils.get_json_key_value(review, review_channel.message_key.split("."))
         timestamp = utils.get_json_key_value(review, review_channel.timestamp_key.split("."))
+        rating = utils.get_json_key_value(review, review_channel.rating_key.split("."))
 
         # Add the review object to the parsed reviews
         parsed_reviews.append(
@@ -84,6 +89,7 @@ def parse_json(raw_user_reviews_file_path, review_channel, app_config):
                 review,
                 message=message,
                 timestamp=timestamp,
+                rating=rating,
                 app_name=app_config.app.name,
                 channel_name=review_channel.channel_name,
                 channel_type=review_channel.channel_type,

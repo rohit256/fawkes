@@ -58,11 +58,11 @@ def dump_lifetime_ratings():
 
             # Creating template for uploading lifetime rating
             playstore_doc = get_template(
-                app_config[APP], playstore_rating, "playstore-lifetime",
-                calculate_hash(app_config[APP] + CHANNEL_TYPE_PLAYSTORE), time)
+                app_config.app.name, playstore_rating, "playstore-lifetime",
+                calculate_hash(app_config.app.name + CHANNEL_TYPE_PLAYSTORE), time)
             appstore_doc = get_template(
-                app_config[APP], appstore_rating, "appstore-lifetime",
-                calculate_hash(app_config[APP] + CHANNEL_TYPE_APPSTORE), time)
+                app_config.app.name, appstore_rating, "appstore-lifetime",
+                calculate_hash(app_config.app.name + CHANNEL_TYPE_APPSTORE), time)
 
             # deleting document to override
             delete_document(app_config[ELASTIC_SEARCH_URL],

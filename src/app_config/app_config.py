@@ -68,6 +68,7 @@ class ReviewChannel:
         self.timestamp_format = config["timestamp_format"]
         self.timezone = config["timezone"]
         self.message_key = config["message_key"]
+        self.rating_key = config["rating_key"]
 
 class AppStoreReviewChannel(ReviewChannel):
     def __init__(self, config):
@@ -79,6 +80,7 @@ class AppStoreReviewChannel(ReviewChannel):
         self.timestamp_key = "updated"
         self.timestamp_format = "%Y-%m-%d %H:%M:%S"
         self.message_key = "content"
+        self.rating_key = "rating"
 
 class PlayStoreReviewChannel(ReviewChannel):
     def __init__(self, config):

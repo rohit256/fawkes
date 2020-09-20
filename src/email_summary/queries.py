@@ -16,9 +16,9 @@ def numberOfReview(reviews):
 def topCategory(reviews):
     if len(reviews) > 1:
         return utils.most_common([
-            review[DERIVED_INSIGHTS][CATEGORY]
+            review.derived_insight.category
             for review in reviews
-            if review[DERIVED_INSIGHTS][CATEGORY] != CATEGORY_NOT_FOUND
+            if review.derived_insight.category != CATEGORY_NOT_FOUND
         ])
     else:
         return reviews[0][DERIVED_INSIGHTS][CATEGORY]
@@ -41,7 +41,7 @@ def numBugsReported(reviews):
 def appStoreRating(reviews):
     reviews = [
         review for review in reviews
-        if review[CHANNEL_TYPE] == CHANNEL_NAME_APPSTORE
+        if review.channel_type == CHANNEL_NAME_APPSTORE
     ]
     if len(reviews) == 0:
         return 0.0
@@ -52,7 +52,7 @@ def appStoreRating(reviews):
 def playStoreRating(reviews):
     reviews = [
         review for review in reviews
-        if review[CHANNEL_TYPE] == CHANNEL_NAME_PLAYSTORE
+        if review.channel_type == CHANNEL_NAME_PLAYSTORE
     ]
     if len(reviews) == 0:
         return 0.0
@@ -93,20 +93,20 @@ def negativeReview(reviews):
 def topCategoryNumberOfReview(reviews):
     tc = topCategory(reviews)
     return len([
-        review for review in reviews if review[DERIVED_INSIGHTS][CATEGORY] == tc
+        review for review in reviews if review.derived_insight.category == tc
     ])
 
 
 def fromDate(reviews):
     return min([
-        datetime.strptime(review[TIMESTAMP], '%Y/%m/%d %H:%M:%S')
+        datetime.strptime(review.timestamp, '%Y/%m/%d %H:%M:%S')
         for review in reviews
     ]).strftime('%b %d')
 
 
 def toDate(reviews):
     return max([
-        datetime.strptime(review[TIMESTAMP], '%Y/%m/%d %H:%M:%S')
+        datetime.strptime(review.timestamp, '%Y/%m/%d %H:%M:%S')
         for review in reviews
     ]).strftime('%b %d')
 
@@ -114,17 +114,17 @@ def toDate(reviews):
 def getVocByCategory(reviews):
     review_by_cat = {}
     for review in reviews:
-        if review[DERIVED_INSIGHTS][CATEGORY] in review_by_cat:
-            review_by_cat[review[DERIVED_INSIGHTS][CATEGORY]].append(review)
+        if review.derived_insight.category in review_by_cat:
+            review_by_cat[review.derived_insight.category].append(review)
         else:
-            review_by_cat[review[DERIVED_INSIGHTS][CATEGORY]] = [review]
+            review_by_cat[review.derived_insight.category] = [review]
     return review_by_cat
 
 
 def playStoreNumberReview(reviews):
     reviews = [
         review for review in reviews
-        if review[CHANNEL_TYPE] == CHANNEL_NAME_PLAYSTORE
+        if review.channel_type == CHANNEL_NAME_PLAYSTORE
     ]
     return len(reviews)
 
@@ -132,6 +132,6 @@ def playStoreNumberReview(reviews):
 def appStoreNumberReview(reviews):
     reviews = [
         review for review in reviews
-        if review[CHANNEL_TYPE] == CHANNEL_NAME_APPSTORE
+        if review.channel_type == CHANNEL_NAME_APPSTORE
     ]
     return len(reviews)

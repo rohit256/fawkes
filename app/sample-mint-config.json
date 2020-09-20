@@ -54,6 +54,7 @@
             "timestamp_format": "",
             "timezone": "UTC",
             "message_key": "content",
+            "rating_key": "rating",
             "app_id": "300238550",
             "country": "us"
         }
