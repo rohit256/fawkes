@@ -13,8 +13,9 @@ from src.utils import *
 from src.config import *
 
 
-def fetch_app_store_reviews(review_channel, app_name):
+def fetch(review_channel, app_name):
     reviews = []
+
     for i in range(APP_STORE_PAGES_TO_FETCH):
         # Fetch the app-store reviews
         response = requests.get(
@@ -27,6 +28,7 @@ def fetch_app_store_reviews(review_channel, app_name):
             reviews += review["feed"]["entry"]
 
     new_reviews = []
+
     # Correcting the timestamps
     for i in range(len(reviews)):
         try:
@@ -45,15 +47,4 @@ def fetch_app_store_reviews(review_channel, app_name):
         except BaseException:
             print("[LOG] Parse Error in fetch_app_store_reviews")
 
-    dir = DATA_DUMP_DIR
-
-    if not os.path.exists(dir):
-        os.makedirs(dir)
-
-    fetch_file_save_path = FETCH_FILE_SAVE_PATH.format(
-        dir_name=dir,
-        app_name=app_name,
-        channel_name=review_channel.channel_name,
-        extension="json")
-
-    dump_json(new_reviews, fetch_file_save_path)
+    return new_reviews

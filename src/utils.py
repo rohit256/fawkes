@@ -24,7 +24,7 @@ from nltk.corpus import stopwords
 sys.path.append(os.path.realpath("."))
 
 from src.stop_words_file import *
-from src.config import *
+from src.constants import *
 
 
 def open_json(file_location):
@@ -319,9 +319,9 @@ def filter_reviews(reviews, app_config, enable_key=IS_CHANNEL_ENABLED):
 
     channel_list = []
     # We create a list of channels which are enabled
-    for review_config in app_config[REVIEW_CHANNELS]:
-        if review_config[enable_key]:
-            channel_list.append(review_config[CHANNEL_NAME])
+    for review_channel in app_config.review_channels:
+        if review_channel[enable_key]:
+            channel_list.append(review_channel.channel_name)
 
     # We first filter the REVIEW on channel-type
     reviews = filter_review_on_channel(channel_list, reviews)
@@ -357,7 +357,7 @@ def filter_review_for_slack(reviews, app_config):
 
 
 def fetch_channel_config(app_config, channel_name):
-    for channel_config in app_config[REVIEW_CHANNELS]:
+    for channel_config in app_config.review_channels:
         if channel_config[CHANNEL_NAME] == channel_name:
             return channel_config
     return None

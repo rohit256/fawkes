@@ -47,14 +47,24 @@
             "channel_type": "ios",
             "channel_name": "appstore",
             "file_type": "json",
+            "file_path": null,
             "is_channel_enabled": true,
             "weekly_summary": true,
             "timestamp_key": "updated",
+            "timestamp_format": "",
             "timezone": "UTC",
             "message_key": "content",
             "app_id": "300238550",
             "country": "us"
         }
     ],
-    "custom_code_file": null
+    "custom_code_module_path": null,
+    "fawkes_internal_config": {
+        "data": {
+            "base_folder": "data",
+            "raw_data_folder": "raw_data",
+            "parsed_data_folder": "parsed_data",
+            "processed_data_folder": "processed_data"
+        }
+    }
 }

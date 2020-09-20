@@ -11,8 +11,7 @@ sys.path.append(os.path.realpath("."))
 from src.utils import *
 from src.config import *
 
-
-def fetch_app_reviews(review_channel, app_name):
+def fetch(review_channel, app_name):
     # Since searchman allows us to have limited credits, we iterate over a set of API keys that we will use every month.
     # The API key gets refreshed every month
     searchman_api_key_index = 0
@@ -22,8 +21,10 @@ def fetch_app_reviews(review_channel, app_name):
         "count": 100,
         "start": 0
     }
+
     reviews = []
     current_page = 0
+
     while current_page < PLAYSTORE_FETCH_PAGES:
         # I am using try catch because we can't afford to waste the response of the API call.
         # TODO: Remove any such thing from when we directly fetch from play
@@ -31,7 +32,7 @@ def fetch_app_reviews(review_channel, app_name):
         try:
             params["start"] = current_page * 100
             response = requests.get(SEARCHMAN_REVIEWS_ENDPOINT.format(
-                platform=review_channel[CHANNEL_TYPE]),
+                platform=review_channel.channel_type),
                                     params=params)
             review_page = json.loads(response.text)
             if "data" in review_page:
@@ -42,7 +43,6 @@ def fetch_app_reviews(review_channel, app_name):
                 print(
                     "[LOG][ERROR] Bad Response from fetch_app_reviews. Trying next API Key."
                 )
-                pprint(review_page)
                 raise Exception("Bad Response from fetch_app_reviews")
         except BaseException:
             searchman_api_key_index += 1
@@ -53,15 +53,4 @@ def fetch_app_reviews(review_channel, app_name):
                 print("[LOG][ERROR] Exhausted all API keys")
                 break
 
-    dir = DATA_DUMP_DIR
-
-    fetch_file_save_path = FETCH_FILE_SAVE_PATH.format(
-        dir_name=dir,
-        app_name=app_name,
-        channel_name=review_channel[CHANNEL_NAME],
-        extension="json")
-
-    if not os.path.exists(dir):
-        os.makedirs(dir)
-    # TODO Fix for pagination
-    dump_json(reviews, fetch_file_save_path)
+    return reviews

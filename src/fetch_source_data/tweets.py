@@ -46,8 +46,7 @@ def search_handle_mentions(api,
     return api.GetSearch(raw_query=query, return_json=True)
 
 
-def fetch_from_twitter(twitter_config, app):
-
+def fetch(twitter_config, app):
     api = twitter_authenthication(twitter_config[CONSUMER_KEY],
                                   twitter_config[CONSUMER_SECRET],
                                   twitter_config[ACCESS_TOKEN_KEY],
@@ -70,16 +69,6 @@ def fetch_from_twitter(twitter_config, app):
                 api, twitter_handle,
                 datetime.today().strftime("%Y-%m-%d"), latest_id)
 
-    dir = DATA_DUMP_DIR
-
-    fetch_file_save_path = FETCH_FILE_SAVE_PATH.format(
-        dir_name=dir,
-        app_name=app,
-        channel_name=twitter_config[CHANNEL_NAME],
-        extension="json")
-    # Creates directory on given path
-    if not os.path.exists(dir):
-        os.makedirs(dir)
     corrected_tweets = []
     for tweet in all_tweets:
         # We have to format the time so that later our parse functions can pick it up
@@ -90,4 +79,4 @@ def fetch_from_twitter(twitter_config, app):
             " ".join(time))
         corrected_tweets.append(tweet)
 
-    dump_json(corrected_tweets, fetch_file_save_path)
+    return corrected_tweets

@@ -61,9 +61,11 @@ class ReviewChannel:
         self.channel_type = config["channel_type"]
         self.channel_name = config["channel_name"]
         self.file_type = config["file_type"]
+        self.file_path = config["file_path"]
         self.is_channel_enabled = config["is_channel_enabled"]
         self.weekly_summary = config["weekly_summary"]
         self.timestamp_key = config["timestamp_key"]
+        self.timestamp_format = config["timestamp_format"]
         self.timezone = config["timezone"]
         self.message_key = config["message_key"]
 
@@ -75,6 +77,7 @@ class AppStoreReviewChannel(ReviewChannel):
 
         # Pre defined constants for App. Store.
         self.timestamp_key = "updated"
+        self.timestamp_format = "%Y-%m-%d %H:%M:%S"
         self.message_key = "content"
 
 class PlayStoreReviewChannel(ReviewChannel):
@@ -108,6 +111,17 @@ class SpreadSheetReviewChannel(ReviewChannel):
         self.sheet_id = config["sheet_id"]
         self.client_secrets_file = config["client_secrets_file"]
 
+class FawkesInternalDataConfig:
+    def __init__(self, config):
+        self.base_folder = config["base_folder"]
+        self.raw_data_folder = config["raw_data_folder"]
+        self.parsed_data_folder = config["parsed_data_folder"]
+        self.processed_data_folder = config["processed_data_folder"]
+
+class FawkesInternalConfig:
+    def __init__(self, config):
+        self.data = FawkesInternalDataConfig(config["data"])
+
 class AppConfig:
     def __init__(self, config):
         self.app = App(config["app"])
@@ -117,7 +131,8 @@ class AppConfig:
         self.jira_config = JiraConfig(config["jira_config"])
         self.algorithm_config = AlgorithmConfig(config["algorithm_config"])
         self.env_keys = config["env_keys"]
-        self.custom_code_file = config["custom_code_file"]
+        self.custom_code_module_path = config["custom_code_module_path"]
+        self.fawkes_internal_config = FawkesInternalConfig(config["fawkes_internal_config"])
 
         # Add the review channels
         self.review_channels = []

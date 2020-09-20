@@ -21,20 +21,9 @@ def fetch_sheet_data(token_file, spreadsheet_id):
     return sheets
 
 
-def fetch_review_from_spreadsheet(channel_config, app):
+def fetch(channel_config, app):
     sheets = fetch_sheet_data(channel_config[CLIENT_SECRET_FILE],
                               channel_config[SPREADSHEET_ID])
-
-    dir = DATA_DUMP_DIR
-
-    if not os.path.exists(dir):
-        os.makedirs(dir)
-
-    fetch_file_save_path = FETCH_FILE_SAVE_PATH.format(
-        dir_name=dir,
-        app_name=app,
-        channel_name=channel_config[CHANNEL_NAME],
-        extension="csv")
 
     sheets[channel_config[SHEET_ID]].to_csv(fetch_file_save_path,
                                             encoding="utf-8",

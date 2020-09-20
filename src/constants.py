@@ -73,6 +73,9 @@ CHANNEL_NAME_TWITTER = "twitter"
 CHANNEL_NAME_PLAYSTORE = "playstore"
 CHANNEL_NAME_APPSTORE = "appstore"
 
+JSON = "json"
+CSV = "csv"
+
 # Salesforce related stuff
 SALESFORCE_EXTRACTION_DAYS = 10
 
@@ -119,7 +122,8 @@ PARSED_INTEGRATED_REVIEW_FILE = "processed-data/{app_name}-parsed-integrated-rev
 PROCESSED_INTEGRATED_REVIEW_FILE = "processed-data/{app_name}-processed-integrated-review.json"
 PROCESSED_EMAIL_FILE = "processed-data/{app_name}-processed-email.html"
 TOPICS_WEIGHT_FILE = "app/{app}-keywords-with-weight.json"
-FETCH_FILE_SAVE_PATH = "{dir_name}{app_name}-{channel_name}-raw-feedback.{extension}"
+RAW_USER_REVIEWS_FILE_PATH = "{base_folder}/{dir_name}/{app_name}/{channel_name}-raw-feedback.{extension}"
+PARSED_USER_REVIEWS_FILE_PATH = "{base_folder}/{dir_name}/{app_name}/parsed-user-feedback.{extension}"
 BUG_FEATURE_FILE_WITH_WEIGHTS = "app/{app}-bug-feature-file-with-weights.json"
 TRAINED_MODELS = "trained-models/"
 LSTM_TRAINED_MODEL_FILE = TRAINED_MODELS + "lstm-{app_name}-trained.h5"

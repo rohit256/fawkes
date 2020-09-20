@@ -2,77 +2,93 @@ import json
 import sys
 import os
 import importlib
+import pathlib
 
-from shutil import copyfile
-from fetch_app_store_reviews import *
-from fetch_app_reviews import *
-from fetch_salesforce_review import *
-from fetch_spreadsheet_review import *
-from fetch_twitter_data import *
+import appstore
+import playstore
+import salesforce
+import spreadsheet
+import tweets
+import comma_separated_values
 
 #  This is so that the following imports work
 sys.path.append(os.path.realpath("."))
 
-from src.utils import *
-from src.config import *
+import src.utils as utils
+from src.constants import *
 
 from src.app_config.app_config import AppConfig, ReviewChannelTypes
 
-def fetch_csv(review_channel, app_name):
-    fetch_file_save_path = FETCH_FILE_SAVE_PATH.format(
-        dir_name=DATA_DUMP_DIR,
-        app_name=app_name,
-        channel_name=review_channel.channel_name,
-        extension="csv")
-    copyfile(review_channel[FILE_PATH], fetch_file_save_path)
-
-
 def fetch_reviews():
-    app_configs = open_json(
-        APP_CONFIG_FILE.format(file_name=APP_CONFIG_FILE_NAME))
-
-    for app in app_configs:
+    # Read the app-config.json file.
+    app_configs = utils.open_json(
+        APP_CONFIG_FILE.format(file_name=APP_CONFIG_FILE_NAME)
+    )
+    # For every app registered in app-config.json we
+    for app_config_file in app_configs:
+        # Creating an AppConfig object
         app_config = AppConfig(
-            open_json(
-                APP_CONFIG_FILE.format(file_name=app)
+            utils.open_json(
+                app_config_file
             )
         )
-
+        # Each app has a list of review channels from which the user reviews are fetched.
         for review_channel in app_config.review_channels:
             if review_channel.is_channel_enabled and review_channel.channel_type != ReviewChannelTypes.BLANK:
+                # Depending on the channel type, we have different "fetchers" to get the data.
                 if review_channel.channel_type == ReviewChannelTypes.TWITTER:
-                    fetch_from_twitter(
+                    reviews = tweets.fetch(
                         review_channel, app_config.app.name
                     )
                 elif review_channel.channel_type == ReviewChannelTypes.SALESFORCE:
-                    fetch_from_salesforce(
+                    reviews = salesforce.fetch(
                         review_channel, app_config.app.name
                     )
                 elif review_channel.channel_type == ReviewChannelTypes.SPREADSHEET:
-                    fetch_review_from_spreadsheet(
+                    reviews = spreadsheet.fetch(
                         review_channel, app_config.app.name
                     )
                 elif review_channel.channel_type == ReviewChannelTypes.CSV:
-                    fetch_csv(
+                    reviews = comma_separated_values.fetch(
                         review_channel, app_config.app.name
                     )
                 elif review_channel.channel_type == ReviewChannelTypes.ANDROID:
-                    fetch_app_reviews(
+                    reviews = playstore.fetch(
                         review_channel, app_config.app.name
                     )
                 elif review_channel.channel_type == ReviewChannelTypes.IOS:
-                    fetch_app_store_reviews(
+                    reviews = appstore.fetch(
                         review_channel, app_config.app.name
                     )
                 else:
                     continue
 
-        # Executing custom code after parsing.
-        if app_config.custom_code_file != None:
-            custom_code_module = importlib.import_module(
-                APP + "." + app_config[CUSTOM_CODE_PATH], package=None)
-            reviews = custom_code_module.run_custom_code_post_fetch()
+                # After fetching the review for that particular channel, we dump it into a file.
+                # The file has a particular format.
+                # {base_folder}/{dir_name}/{app_name}/{channel_name}-raw-feedback.{extension}
+                raw_user_reviews_file_path = RAW_USER_REVIEWS_FILE_PATH.format(
+                    base_folder=app_config.fawkes_internal_config.data.base_folder,
+                    dir_name=app_config.fawkes_internal_config.data.raw_data_folder,
+                    app_name=app_config.app.name,
+                    channel_name=review_channel.channel_name,
+                    extension=review_channel.file_type)
 
+                # Create the intermediate folders
+                dir_name = os.path.dirname(raw_user_reviews_file_path)
+                pathlib.Path(dir_name).mkdir(parents=True, exist_ok=True)
+
+                if review_channel.file_type == JSON:
+                    utils.dump_json(reviews, raw_user_reviews_file_path)
+                else:
+                    # TODO: Write the CSV file.
+                    pass
+
+        # There are lot of use-cases where we need to execute custom code after the data is fetched.
+        # This might include data-transformation, cleanup etc.
+        # This is the right place to do that.
+        if app_config.custom_code_module_path != None:
+            custom_code_module = importlib.import_module(app_config.custom_code_module_path, package=None)
+            reviews = custom_code_module.run_custom_code_post_fetch()
 
 if __name__ == "__main__":
     fetch_reviews()

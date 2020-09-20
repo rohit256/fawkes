@@ -39,7 +39,7 @@ def get_next_page(url, bearer_token):
     return json.loads(response.text)
 
 
-def fetch_from_salesforce(salesforce_details, app):
+def fetch(salesforce_details, app):
     # Authenticate with salesforce api
     token_response = get_oauth_token(
         salesforce_details[SALESFORCE_BASE_URL],
@@ -68,8 +68,6 @@ def fetch_from_salesforce(salesforce_details, app):
                 token_response[SALESFORCE_ACCESS_TOKEN_KEY])
             records += data[RECORDS]
 
-        dir = DATA_DUMP_DIR
-
         # If there is one query , file nomeclature changes
         if len(salesforce_details[SALESFORCE_QUERY_LIST]) > 1:
             file_suffix = "-" + \
@@ -77,19 +75,9 @@ def fetch_from_salesforce(salesforce_details, app):
         else:
             file_suffix = ""
 
-        fetch_file_save_path = FETCH_FILE_SAVE_PATH.format(
-            dir_name=dir,
-            app_name=app,
-            channel_name=salesforce_details[CHANNEL_NAME] + file_suffix,
-            extension="json")
-
         # Get the value of timestamp and message
         for i in range(len(records)):
             if salesforce_details[TIMESTAMP_KEY] in records[i]:
                 records[i][salesforce_details[TIMESTAMP_KEY]] = records[i][
                     salesforce_details[TIMESTAMP_KEY]].split("T")[0]
-
-        if not os.path.exists(dir):
-            os.makedirs(dir)
-
-        dump_json(records, fetch_file_save_path)
+    return records
