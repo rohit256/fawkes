@@ -44,7 +44,10 @@ class AlgorithmConfig:
         self.categorization_algorithm = config["categorization_algorithm"]
         self.algorithm_days_filter = config["algorithm_days_filter"]
         self.bug_feature_keywords_file = config["bug_feature_keywords_file"]
-        self.category_keyworkds_file = config["category_keyworkds_file"]
+        self.bug_feature_keywords_weights_file = config["bug_feature_keywords_weights_file"]
+        self.category_keywords_file = config["category_keywords_file"]
+        self.category_keywords_weights_file = config["category_keywords_weights_file"]
+
 
 class ReviewChannelTypes:
     IOS = "ios"

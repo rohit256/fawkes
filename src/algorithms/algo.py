@@ -29,7 +29,6 @@ from src.algorithms.sentiment import *
 def add_review_sentiment_score(review):
     # Add the sentiment to the review's derived insight and return the review
     review.derived_insight.sentiment = get_sentiment(review.message)
-
     return review
 
 def text_match_categortization(review, app_config, topics):
@@ -37,7 +36,6 @@ def text_match_categortization(review, app_config, topics):
     category_scores, category = text_match(review.message, topics)
     # Add the category to the review's derived insight and return the review
     review.derived_insight.category = category
-
     return review
 
 
@@ -65,7 +63,6 @@ def run_algo():
     app_configs = utils.open_json(
         constants.APP_CONFIG_FILE.format(file_name=constants.APP_CONFIG_FILE_NAME)
     )
-
     for app_config_file in app_configs:
         app_config = AppConfig(
             utils.open_json(
@@ -79,16 +76,14 @@ def run_algo():
             app_name=app_config.app.name,
             extension=constants.JSON,
         )
+
         # Loading the reviews
         reviews = utils.open_json(parsed_user_reviews_file_path)
 
+        # Converting the json object to Review object
         reviews = [Review.from_review_json(review) for review in reviews]
 
         # Filtering out reviews which are not applicable.
-        # For algorithms there are mainly two filters applicable.
-        # They are:
-        # 1. is_channel_enabled (specified at a review_channel level)
-        # 2. algorithm_days_filter (specified at a app_config level)
         reviews = filter_utils.filter_reviews_by_time(
             filter_utils.filter_reviews_by_channel(
                 reviews, filter_utils.filter_disabled_review_channels(
@@ -104,34 +99,25 @@ def run_algo():
         if constants.CIRCLECI in os.environ:
             num_processes = 2
 
-        print("[LOG] Parallelism :: ", num_processes)
-
-        print("[LOG] Starting Sentiment Analysis :: ")
-
         # Adding sentiment
         with Pool(num_processes) as process:
             reviews = process.map(add_review_sentiment_score, reviews)
 
-        # print("[LOG] Ending Sentiment Analysis :: ")
+        if app_config.algorithm_config.categorization_algorithm != None and app_config.algorithm_config.category_keywords_weights_file != None:
+            # We read from the topic file first
+            topics = {}
+            topics = utils.open_json(app_config.algorithm_config.category_keywords_weights_file)
 
-        # if TOPIC_KEYWORDS_FILE in app_config:
-
-        #     print("[LOG] Starting Categorization :: ")
-
-        #     # We read from the topic file first
-        #     topics = {}
-        #     topics = open_json(TOPICS_WEIGHT_FILE.format(app=app_config.app.name))
-
-        #     # Adding text-match categorization
-        #     # Multiprocessing for speeeeeeding up. Need For Speed!!!
-        #     # Partial is for multiple argument functions
-        #     with Pool(num_processes) as process:
-        #         reviews = process.map(
-        #             partial(text_match_categortization,
-        #                     app_config=app_config,
-        #                     topics=topics), reviews)
-
-        #     print("[LOG] Ending Categorization :: ")
+            # Adding text-match categorization
+            with Pool(num_processes) as process:
+                reviews = process.map(
+                    partial(
+                        text_match_categortization,
+                        app_config=app_config,
+                        topics=topics
+                    ),
+                    reviews
+                )
 
         # if CATEGORIZATION_ALGORITHM in app_config and app_config[
         #         CATEGORIZATION_ALGORITHM] == LSTM_CLASSIFIER:

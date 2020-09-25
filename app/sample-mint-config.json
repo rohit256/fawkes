@@ -39,7 +39,9 @@
         "categorization_algorithm": "text_match_classifier",
         "algorithm_days_filter": 1000,
         "bug_feature_keywords_file": "app/bug-feature-keywords.json",
-        "category_keyworkds_file": "app/category-keywords.json"
+        "bug_feature_keywords_weights_file": "app/bug-feature-keywords-weights.json",
+        "category_keywords_file": "app/category-keywords.json",
+        "category_keywords_weights_file": "app/category-keywords-weights.json"
     },
     "env_keys": [],
     "review_channels": [
