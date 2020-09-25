@@ -29,6 +29,7 @@ from src.algorithms.sentiment import *
 def add_review_sentiment_score(review):
     # Add the sentiment to the review's derived insight and return the review
     review.derived_insight.sentiment = get_sentiment(review.message)
+    # Return the review
     return review
 
 def text_match_categortization(review, app_config, topics):
@@ -36,6 +37,7 @@ def text_match_categortization(review, app_config, topics):
     category_scores, category = text_match(review.message, topics)
     # Add the category to the review's derived insight and return the review
     review.derived_insight.category = category
+    # Return the review
     return review
 
 
@@ -54,10 +56,12 @@ def text_match_categortization(review, app_config, topics):
 #     ]
 
 
-# def bug_feature_classification(review, app_config, topics):
-#     _, category = text_match(review.message, topics)
-#     return format_output_json(review, None, None, {constants.BUG_FEATURE: category})
-
+def bug_feature_classification(review, topics):
+    _, category = text_match(review.message, topics)
+    # Add the bug-feature classification to the review's derived insight and return the review
+    review.derived_insight.extra_properties[constants.BUG_FEATURE] = category
+    # Return the review
+    return review
 
 def run_algo():
     app_configs = utils.open_json(
@@ -119,6 +123,21 @@ def run_algo():
                     reviews
                 )
 
+        if app_config.algorithm_config.bug_feature_keywords_weights_file != None:
+            # We read from the topic file first
+            topics = {}
+            topics = utils.open_json(app_config.algorithm_config.bug_feature_keywords_weights_file)
+
+            # Adding bug/feature classification
+            with Pool(num_processes) as process:
+                reviews = process.map(
+                    partial(
+                        bug_feature_classification,
+                        topics=topics
+                    ),
+                    reviews
+                )
+
         # if CATEGORIZATION_ALGORITHM in app_config and app_config[
         #         CATEGORIZATION_ALGORITHM] == LSTM_CLASSIFIER:
         #     print("[LOG] Loading LSTM Model :: ")
@@ -172,22 +191,6 @@ def run_algo():
         #               (100.0 * lstm_text_match_parity) / len(reviews))
 
         #     print("[LOG] Ending LSTM Categorization :: ")
-
-        # if BUG_FEATURE_FILE in app_config:
-        #     print("[LOG] Starting Bug/Feature Categorization :: ")
-
-        #     topics = {}
-        #     topics = open_json(
-        #         BUG_FEATURE_FILE_WITH_WEIGHTS.format(app=app_config.app.name))
-        #     # Adding bug/feature
-        #     # Multiprocessing for speeeeeeding up. Need For Speed!!!
-        #     with Pool(num_processes) as process:
-        #         reviews = process.map(
-        #             partial(bug_feature_classification,
-        #                     app_config=app_config,
-        #                     topics=topics), reviews)
-
-        #     print("[LOG] Ending Bug/Feature Categorization :: ")
 
         # Create the intermediate folders
         processed_user_reviews_file_path = constants.PROCESSED_USER_REVIEWS_FILE_PATH.format(
