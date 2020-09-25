@@ -1,5 +1,5 @@
 from shutil import copyfile
-import src.utils as utils
+import src.utils.utils as utils
 import src.constants as constants
 
 def fetch_csv(review_channel):

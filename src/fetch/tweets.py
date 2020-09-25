@@ -8,7 +8,7 @@ from datetime import datetime
 # This is so that below import works
 sys.path.append(os.path.realpath("."))
 
-import src.utils as utils
+import src.utils.utils as utils
 import src.constants as constants
 
 def twitter_authenthication(consumer_key, consumer_secret, access_token_key,

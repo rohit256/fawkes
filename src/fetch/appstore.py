@@ -9,7 +9,7 @@ from pprint import pprint
 # This is so that below import works
 sys.path.append(os.path.realpath("."))
 
-import src.utils as utils
+import src.utils.utils as utils
 import src.constants as constants
 
 

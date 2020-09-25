@@ -169,5 +169,5 @@ class AppConfig:
                     ReviewChannel(review_channel)
                 )
 
-    def inject_env_vars_as_values(config):
+    def inject_env_vars_as_values(self, config):
         pass

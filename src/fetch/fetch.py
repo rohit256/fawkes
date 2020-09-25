@@ -14,7 +14,7 @@ import comma_separated_values
 #  This is so that the following imports work
 sys.path.append(os.path.realpath("."))
 
-import src.utils as utils
+import src.utils.utils as utils
 import src.constants as constants
 
 from src.app_config.app_config import AppConfig, ReviewChannelTypes

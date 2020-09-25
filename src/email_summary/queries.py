@@ -5,7 +5,7 @@ from datetime import datetime
 # this is so that below import works.  Sets the pwd to home directory
 sys.path.append(os.path.realpath("."))
 
-import src.utils as utils
+import src.utils.utils as utils
 from src.config import *
 
 

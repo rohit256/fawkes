@@ -20,7 +20,7 @@ from nltk.corpus import stopwords
 #  This is so that the following imports work
 sys.path.append(os.path.realpath("."))
 
-import src.utils as utils
+import src.utils.utils as utils
 from src.config import *
 from src.utils import *
 

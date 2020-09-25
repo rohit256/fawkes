@@ -7,7 +7,7 @@ sys.path.append(os.path.realpath("."))
 
 import src.algorithms.algo as algo
 import src.parse.parse as parse
-import src.utils as utils
+import src.utils.utils as utils
 
 
 class FawkesSanityTest(unittest.TestCase):

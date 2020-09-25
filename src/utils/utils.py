@@ -25,7 +25,6 @@ sys.path.append(os.path.realpath("."))
 from src.stop_words_file import *
 from src.constants import *
 
-
 def open_json(file_location):
     with open(file_location, "r") as read_file:
         documents = json.load(read_file)
@@ -35,30 +34,6 @@ def open_json(file_location):
 def dump_json(records, write_file):
     with open(write_file, "w") as file:
         json.dump(records, file, indent=4)
-
-
-def merge_json(file1, file2):
-    """ Merges two jsons which are list of dictionaries """
-    first_part = open_json(file1)
-    second_part = open_json(file2)
-    merged_contents = first_part + second_part
-
-    return merged_contents
-
-
-def remove_links(message):
-    return re.sub(LINK_REGEX, "", message)
-
-
-def convert_keys_to_lower(reviews):
-    for review in reviews:
-        d = {}
-        for key in review[PROPERTIES]:
-            key_lower = key.lower()
-            d[key_lower] = review[PROPERTIES][key]
-        review[PROPERTIES] = d
-    return reviews
-
 
 def get_json_key_value(json_object, keys_list):
     """ Get the value from json pointing to string of keys input: [k1,k2] """
@@ -83,76 +58,6 @@ def get_json_key_value(json_object, keys_list):
             return None
 
     return get_json_key_value(json_object[key], keys_list[1:])
-
-
-def format_input_json(app, timestamp, message, channel_type, properties):
-    """
-    Returns formatted parsed data.
-    Format of parsed json :
-        app : app_name
-        timestamp : "2015/01/01 12:10:30", (this format only coz elastic search identifies date field only if this format only)
-        message : "feedback / REVIEW"
-        channel-type : "channel"
-        properties : {
-            rating : 3
-            contains rest of the channel specific data.
-        }
-    """
-    parsed_data = {}
-    parsed_data[APP] = app
-    parsed_data[TIMESTAMP] = timestamp
-    parsed_data[MESSAGE] = message
-    parsed_data[CHANNEL_TYPE] = channel_type
-    parsed_data[PROPERTIES] = properties
-    parsed_data[HASH_ID] = calculate_hash(timestamp + message)
-
-    return parsed_data
-
-
-def convert_date_format(dateformat):
-    """
-    Identifies most date time formats and converts them into unified date times format:
-        YYYY/MM/DD HH:MM:SS
-    Elastic Search identifies this format only.
-    """
-
-    # Converts both unix and general time formats
-    try:
-        yourdate = dateutil.parser.parse(dateformat)
-    except BaseException:
-        try:
-            return datetime.utcfromtimestamp(
-                float(dateformat)).strftime("%Y/%m/%d %H:%M:%S")
-        except BaseException:
-            return ""
-
-    oldformat = str(yourdate)
-    datetimeobject = datetime.strptime(oldformat, '%Y-%m-%d  %H:%M:%S')
-    newformat = datetimeobject.strftime('%Y/%m/%d %H:%M:%S')
-
-    return newformat
-
-
-def generic_cleanup(message):
-    """
-    All the parsing codes call this for generic cleanup.
-    """
-
-    # Important to have quotes for sentiment to be correctly identified
-    message = message.replace(u"\u2018", "'")
-    message = message.replace(u"\u2019", "'")
-
-    message = message.replace("\n", "")
-    message = message.replace("\t", "")
-    # Removes links from message using regex
-    regex = re.compile(URL_REGEX)
-    message = regex.sub("", message)
-
-    # Removing the non ascii chars
-    message = (message.encode("ascii", "ignore")).decode("utf-8")
-
-    return message
-
 
 def check_tweet_authenticity(tweet_message, twitter_handle_blacklist):
     """  Checks if tweets incoming are authentic. basically there is blacklist of twitter-handles """
@@ -202,16 +107,6 @@ def format_output_json(input_dict,
     input_dict[DERIVED_INSIGHTS] = temp_dict
 
     return input_dict
-
-
-def remove_duplicates(list_with_duplicates):
-    clean_list = []
-    for doc in list_with_duplicates:
-        message_list = [sent[MESSAGE] for sent in clean_list]
-        if doc[MESSAGE] not in message_list:
-            clean_list.append(doc)
-    return clean_list
-
 
 def filter_review_on_channel(channel_list, reviews):
     """ Filters the review for those channels which are not in channel_list """
@@ -281,7 +176,6 @@ def get_top_tweets_link(review_list):
 
 def calculate_hash(string):
     return hashlib.sha1(string.encode("utf-8")).hexdigest()
-
 
 def most_common(L):
     # https://stackoverflow.com/a/1520716/3751615

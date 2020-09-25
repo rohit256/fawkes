@@ -11,7 +11,7 @@ from pprint import pprint
 # This is so that below import works.  Sets the pwd to home directory
 sys.path.append(os.path.realpath("."))
 
-import src.utils as utils
+import src.utils.utils as utils
 import src.constants as constants
 
 from src.app_config.app_config import AppConfig, ReviewChannelTypes
@@ -93,6 +93,8 @@ def parse_json(raw_user_reviews_file_path, review_channel, app_config):
                 app_name=app_config.app.name,
                 channel_name=review_channel.channel_name,
                 channel_type=review_channel.channel_type,
+                review_timezone=review_channel.timezone,
+                timestamp_format=review_channel.timestamp_format,
             )
         )
 
@@ -120,23 +122,23 @@ def parse_reviews():
                     dir_name=app_config.fawkes_internal_config.data.raw_data_folder,
                     app_name=app_config.app.name,
                     channel_name=review_channel.channel_name,
-                    extension=review_channel.file_type)
-
-                if review_channel.file_type == constants.JSON:
-                    channel_reviews = parse_json(raw_user_reviews_file_path,
-                                                review_channel, app_config)
-                elif review_channel.file_type == constants.CSV:
-                    channel_reviews = parse_csv(raw_user_reviews_file_path, review_channel,
-                                               app_config)
-                else:
+                    extension=review_channel.file_type
+                )
+                if review_channel.file_type == constants.JSON: # Parse JSON
+                    channel_reviews = parse_json(
+                        raw_user_reviews_file_path,
+                        review_channel, app_config
+                    )
+                elif review_channel.file_type == constants.CSV: # Parse CSV
+                    channel_reviews = parse_csv(
+                        raw_user_reviews_file_path,
+                        review_channel,
+                        app_config
+                    )
+                else: # Unsupported file format
                     raise (
                         "Format not supported exception. Check your file-type key in your config."
                     )
-                # Now have have parsed the raw json/csv which come directly from the source and have converted to a review object.
-                # Its time to standarise the object
-                for review in channel_reviews:
-                    review.standardise_date_time(review_channel.timezone, review_channel.timestamp_format)
-                    review.clean_review_message()
                 parsed_reviews += channel_reviews
 
         # Executing custom code after parsing.
@@ -150,9 +152,9 @@ def parse_reviews():
         # {base_folder}/{dir_name}/{app_name}/parsed-user-feedback.{extension}
         parsed_user_reviews_file_path = constants.PARSED_USER_REVIEWS_FILE_PATH.format(
             base_folder=app_config.fawkes_internal_config.data.base_folder,
-            dir_name=app_config.fawkes_internal_config.data.raw_data_folder,
+            dir_name=app_config.fawkes_internal_config.data.parsed_data_folder,
             app_name=app_config.app.name,
-            extension=review_channel.file_type
+            extension=constants.JSON,
         )
 
         # Create the intermediate folders
