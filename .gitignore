@@ -1,21 +1,22 @@
 .DS_Store
-src/__pycache__/
-src/parse/__pycache__/
+fawkes/__pycache__/
+fawkes/parse/__pycache__/
 
 *.pyc
 .tag*
+.idea/
 
 # All the secret files
-src/scripts/fawkes-secrets.env
+scripts/fawkes-secrets.env
 
 # Google Spreadsheets
 storages.json
 
 # App Config related
-app/*.csv
-app/*.json
-app/*.py
-!app/app-config.json
+app/**/*.csv
+app/**/*.json
+app/**/*.py
+!app/fawkes-config.json
 !app/bug-feature-keywords.json
 !app/category-keywords.json
 
@@ -25,7 +26,7 @@ data/**/*.csv
 data/**/*.h5
 data/**/*.html
 
-# Emabling sample-data
+# Enabling sample-data
 !data/raw_data/sample-mint/*
 !data/parsed_data/sample-mint/*
 !data/processed_data/sample-mint/*
@@ -36,3 +37,13 @@ coverage.xml
 
 # All the binaries including elasticsearch, kibana etc.
 bin/
+lib/
+pyvenv.cfg
+
+# Documentation
+docs/
+
+# PyInstaller related stuff
+cli.spec
+build/
+dist/

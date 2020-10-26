@@ -10,7 +10,7 @@
         "lifetime_rating_index": ""
     },
     "email_config": {
-        "email_template_file": "src/email_summary/templates/weekly-detailed.html",
+        "email_template_file": "fawkes/email_summary/templates/weekly-detailed.html",
         "email_time_span": 1000,
         "email_time_span_in_words": "week",
         "email_subject_name": "Fawkes: Weekly Summary Email",
@@ -53,14 +53,28 @@
             "file_type": "json",
             "file_path": null,
             "is_channel_enabled": true,
-            "weekly_summary": true,
             "timestamp_key": "updated",
             "timestamp_format": "",
             "timezone": "UTC",
             "message_key": "content",
             "rating_key": "rating",
             "app_id": "300238550",
-            "country": "us"
+            "country": "us",
+            "user_id_key": null,
+            "num_pages_to_fetch": 10
+        },
+        {
+            "channel_type": "remote_file",
+            "channel_name": "amazon-musical-instruments",
+            "file_type": "json.lines",
+            "file_path": "https://github.com/MadaraUchiha-314/fawkes-dataset/blob/main/amazon/musical-instruments/musical-instruments-sample.json?raw=true",
+            "is_channel_enabled": false,
+            "timestamp_key": "unixReviewTime",
+            "timestamp_format": "unix_timestamp",
+            "timezone": "UTC",
+            "message_key": "reviewText",
+            "rating_key": "overall",
+            "user_id_key": null
         }
     ],
     "custom_code_module_path": null,
@@ -71,7 +85,8 @@
             "parsed_data_folder": "parsed_data",
             "processed_data_folder": "processed_data",
             "models_folder": "models",
-            "emails_folder": "emails"
+            "emails_folder": "emails",
+            "query_response_folder": "query_response_data"
         }
     }
 }
