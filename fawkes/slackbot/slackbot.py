@@ -4,6 +4,7 @@ import json
 import requests
 import time
 import urllib
+import logging
 
 from pprint import pprint
 from datetime import datetime, timedelta, timezone
@@ -14,13 +15,15 @@ sys.path.append(os.path.realpath("."))
 import fawkes.utils.utils as utils
 import fawkes.constants.constants as constants
 import fawkes.utils.filter_utils as filter_utils
+import fawkes.constants.logs as logs
 
 from fawkes.configs.app_config import AppConfig, ReviewChannelTypes
 from fawkes.configs.fawkes_config import FawkesConfig
 from fawkes.review.review import Review
+from fawkes.cli.fawkes_actions import FawkesActions
 
 def generate_star_from_rating(rating):
-    return "".join(["★" for i in range(rating)])
+    return "".join(["★" for i in range(round(rating))])
 
 
 def get_rating_color(rating):
@@ -159,7 +162,7 @@ def send_review_to_slack(slack_url,
                     review.timestamp.timetuple()
                 ),
             "footer":
-                review.app_name + " : " + review.channel_type,
+                review.app_name + " : " + review.channel_name + " | User Id: " + str(review.user_id),
             "actions":
                 get_actions(review, app_config)
         }
@@ -208,6 +211,9 @@ def send_reviews_to_slack(fawkes_config_file = constants.FAWKES_CONFIG_FILE):
             )
         )
 
+        # Log the current operation which is being performed.
+        logging.info(logs.OPERATION, FawkesActions.PUSH_SLACK, "ALL", app_config.app.name)
+
         # Create the intermediate folders
         processed_user_reviews_file_path = constants.PROCESSED_USER_REVIEWS_FILE_PATH.format(
             base_folder=app_config.fawkes_internal_config.data.base_folder,
@@ -230,6 +236,9 @@ def send_reviews_to_slack(fawkes_config_file = constants.FAWKES_CONFIG_FILE):
             ),
             datetime.now(timezone.utc) - timedelta(minutes=app_config.slack_config.slack_run_interval)
         )
+
+        # Log the number of reviews we got.
+        logging.info(logs.NUM_REVIEWS, len(reviews), "ALL", app_config.app.name)
 
         reviews = sorted(reviews,
                             key=lambda review: review.derived_insight.sentiment["compound"],

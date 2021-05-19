@@ -7,7 +7,8 @@
         "index": "fawkes-user-reviews",
         "elastic_search_url": "http://localhost:9200/",
         "kibana_url": "http://localhost:5601",
-        "lifetime_rating_index": ""
+        "lifetime_rating_index": "",
+        "elastic_search_days_filter": 2000
     },
     "email_config": {
         "email_template_file": "fawkes/email_summary/templates/weekly-detailed.html",
@@ -38,12 +39,23 @@
         "bug_type": "1"
     },
     "algorithm_config": {
-        "categorization_algorithm": "text_match",
+        "algorithms_to_run": [
+            "categorization",
+            "bug_feature_categorization",
+            "sentiment_analysis"
+        ],
         "algorithm_days_filter": 1000,
-        "bug_feature_keywords_file": "app/bug-feature-keywords.json",
-        "bug_feature_keywords_weights_file": "app/bug-feature-keywords-weights.json",
-        "category_keywords_file": "app/category-keywords.json",
-        "category_keywords_weights_file": "app/category-keywords-weights.json"
+        "categorization": {
+            "algorithm": "text_match",
+            "bug_feature_keywords_file": "app/bug-feature-keywords.json",
+            "bug_feature_keywords_weights_file": "app/bug-feature-keywords-weights.json",
+            "category_keywords_file": "app/category-keywords.json",
+            "category_keywords_weights_file": "app/category-keywords-weights.json"
+        },
+        "summarization": {
+            "num_clusters": 2,
+            "summary_length_per_cluster": 30
+        }
     },
     "env_keys": [],
     "review_channels": [
@@ -55,9 +67,10 @@
             "is_channel_enabled": true,
             "timestamp_key": "updated",
             "timestamp_format": "",
-            "timezone": "UTC",
+            "timezone": "US/Pacific",
             "message_key": "content",
             "rating_key": "rating",
+            "rating_max_value": 5.0,
             "app_id": "300238550",
             "country": "us",
             "user_id_key": null,
@@ -74,6 +87,26 @@
             "timezone": "UTC",
             "message_key": "reviewText",
             "rating_key": "overall",
+            "rating_max_value": 5.0,
+            "user_id_key": null
+        },
+        {
+            "channel_type": "splunk",
+            "channel_name": "splunk-review",
+            "file_type": "json",
+            "file_path": null,
+            "is_channel_enabled": false,
+            "timestamp_key": "updated",
+            "timestamp_format": "%Y-%m-%d %H:%M:%S",
+            "timezone": "UTC",
+            "message_key": "content",
+            "rating_key": "rating",
+            "rating_max_value": 5.0,
+            "host": "localhost",
+            "port": 443,
+            "username": "user",
+            "password": "password",
+            "query" : "index=user_reviews earliest=-10m latest=now",
             "user_id_key": null
         }
     ],
@@ -86,7 +119,7 @@
             "processed_data_folder": "processed_data",
             "models_folder": "models",
             "emails_folder": "emails",
-            "query_response_folder": "query_response_data"
+            "query_folder": "query_folder"
         }
     }
 }

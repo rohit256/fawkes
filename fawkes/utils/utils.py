@@ -7,12 +7,14 @@ import itertools
 import operator
 import dateutil.parser
 import hashlib
+import nltk
 
-import spacy
 import jsonschema
 
 from pprint import pprint
 from datetime import datetime, timedelta
+
+nltk.download("stopwords", quiet=True)
 
 from nltk.corpus import stopwords
 from pathlib import Path
@@ -94,18 +96,6 @@ def remove_stop_words(document):
     stop_words = set(stop_words + EXTENDED_STOP_WORDS)
     return [token for token in document if token not in stop_words]
 
-
-def lemmatisation(text, allowed_postags=["NOUN", "ADJ", "VERB", "ADV"]):
-    """
-    Does lemmatisation. whats lemmatisation? google :P
-    Input : ["phil", "is", "good"]
-    - https://spacy.io/api/annotation
-    - https://spacy.io/api/top-level
-    """
-    nlp = spacy.load("en", disable=["parser", "ner"])
-    doc = nlp(" ".join(text))
-    return [token.lemma_ for token in doc if token.pos_ in allowed_postags]
-
 def calculate_hash(string):
     return hashlib.sha1(string.encode("utf-8")).hexdigest()
 
@@ -145,7 +135,11 @@ def write_query_results(response, write_file, format):
     # Create the intermediate folders
     dir_name = os.path.dirname(write_file)
     Path(dir_name).mkdir(parents=True, exist_ok=True)
+
     if format == constants.JSON:
         dump_json(response, write_file)
     elif format == constants.CSV:
         dump_csv(response, write_file)
+
+def remove_empty_keys(raw_review):
+    return {k:v for k,v in raw_review.items() if k != ""}
